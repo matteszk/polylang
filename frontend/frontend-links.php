@@ -105,30 +105,32 @@ class PLL_Frontend_Links extends PLL_Links {
 
 			// Translated taxonomy
 			// Take care that is_tax() is false for categories and tags
-			elseif ( ( is_category() || is_tag() || is_tax() ) && ( $term = get_queried_object() ) && $this->model->is_translated_taxonomy( $term->taxonomy ) ) {
-				$lang = $this->model->term->get_language( $term->term_id );
+			elseif ( ( is_category() || is_tag() || is_tax() ) && ( $term = get_queried_object() ) ) {
+				if ( $this->model->is_translated_taxonomy( $term->taxonomy ) {
+					$lang = $this->model->term->get_language( $term->term_id );
 
-				if ( ! $lang || $language->slug == $lang->slug ) {
-					$url = get_term_link( $term, $term->taxonomy ); // Self link
-				}
+					if ( ! $lang || $language->slug == $lang->slug ) {
+						$url = get_term_link( $term, $term->taxonomy ); // Self link
+					}
 
-				elseif ( $tr_id = $this->model->term->get_translation( $term->term_id, $language ) ) {
-					if ( $tr_term = get_term( $tr_id, $term->taxonomy ) ) {
-						// Check if translated term ( or children ) have posts
-						$count = $tr_term->count || ( is_taxonomy_hierarchical( $term->taxonomy ) && array_sum( wp_list_pluck( get_terms( $term->taxonomy, array( 'child_of' => $tr_term->term_id, 'lang' => $language->slug ) ), 'count' ) ) );
+					elseif ( $tr_id = $this->model->term->get_translation( $term->term_id, $language ) ) {
+						if ( $tr_term = get_term( $tr_id, $term->taxonomy ) ) {
+							// Check if translated term ( or children ) have posts
+							$count = $tr_term->count || ( is_taxonomy_hierarchical( $term->taxonomy ) && array_sum( wp_list_pluck( get_terms( $term->taxonomy, array( 'child_of' => $tr_term->term_id, 'lang' => $language->slug ) ), 'count' ) ) );
 
-						/**
-						 * Filter whether to hide an archive translation url
-						 *
-						 * @since 2.2.4
-						 *
-						 * @param bool   $hide True to hide the translation url.
-						 *                     defaults to true when the translated archive is empty, false otherwise.
-						 * @param string $lang The language code of the translation
-						 * @param array  $args Arguments used to evaluated the number of posts in the archive
-						 */
-						if ( ! apply_filters( 'pll_hide_archive_translation_url', ! $count, $language->slug, array( 'taxonomy' => $term->taxonomy ) ) ) {
-							$url = get_term_link( $tr_term, $term->taxonomy );
+							/**
+							 * Filter whether to hide an archive translation url
+							 *
+							 * @since 2.2.4
+							 *
+							 * @param bool   $hide True to hide the translation url.
+							 *                     defaults to true when the translated archive is empty, false otherwise.
+							 * @param string $lang The language code of the translation
+							 * @param array  $args Arguments used to evaluated the number of posts in the archive
+							 */
+							if ( ! apply_filters( 'pll_hide_archive_translation_url', ! $count, $language->slug, array( 'taxonomy' => $term->taxonomy ) ) ) {
+								$url = get_term_link( $tr_term, $term->taxonomy );
+							}
 						}
 					}
 				}
